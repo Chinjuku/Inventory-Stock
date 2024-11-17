@@ -9,9 +9,12 @@ const app = express();
 app.use(cors());
 connectDB();
 
-const Item = mongoose.model('Item', 
-  new mongoose.Schema({}, { strict: false }), 
+const Item = mongoose.model('Item',
+  new mongoose.Schema({}, { strict: false }),
   'item');
+const Stock = mongoose.model('Stock',
+  new mongoose.Schema({}, { strict: false }),
+  'stock');
 
 
 app.get('/api/item', async (req, res) => {
@@ -23,14 +26,37 @@ app.get('/api/item', async (req, res) => {
   }
 });
 
-app.get('/api/stock/:id', async (req, res) => {
-  const { id } = req.params;
+app.get('/api/item/:item_id', async (req, res) => {
+  const { item_id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(item_id)) {
+    return res.status(400).send({ error: 'Invalid item ID format' });
+  }
+
   try {
-    const countstock = await Item.count({
-      _id: id
-    })
-    res.send(countstock);
+    const itemById = await Item.findById(item_id);
+    if (!itemById) {
+      return res.status(404).send({ error: 'Item not found' });
+    }
+    res.send(itemById);
   } catch (error) {
+    console.error('Error fetching item:', error);
+    res.status(500).send({ error: 'Error fetching items' });
+  }
+});
+
+app.get('/api/stock/:item_id', async (req, res) => {
+  const { item_id } = req.params;
+  try {
+    const countstock = await Stock.countDocuments({
+      item_code: new mongoose.Types.ObjectId(item_id)
+    })
+    if (!countstock) {
+      return res.send({ count_lot: countstock })
+    }
+    res.send({ count_lot: countstock });
+  } catch (error) {
+    console.error(error)
     res.status(500).send({ error: 'Error fetching items' });
   }
 });

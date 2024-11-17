@@ -16,7 +16,7 @@ export const StockForm = () => {
   const [items, setItems] = useState([]);
   const [formData, setFormData] = useState({
     item: "",
-    quantity: "",
+    amount: "",
     note: "",
   });
   const [error, setError] = useState({});
@@ -24,7 +24,6 @@ export const StockForm = () => {
   const [dialogType, setDialogType] = useState("");
   const [success, setSuccess] = useState({});
 
-  // Fetch items on component mount
   useEffect(() => {
     const fetchData = async () => {
         const res = await getItems();
@@ -44,34 +43,31 @@ export const StockForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { item, quantity, note } = formData;
-    const newErrors = {};
+    const { item, amount, note } = formData;
+    const errors = {};
 
-    // Validate item
     if (!item) {
-      newErrors.item = "กรุณาเลือกรายการนำเข้าน้ำยา";
+      errors.item = "กรุณาเลือกรายการนำเข้าน้ำยา";
     }
 
-    // Validate quantity
-    if (!quantity) {
-      newErrors.quantity = "กรุณาใส่จำนวนน้ำยา";
-    } else if (quantity > 9999 || quantity <= 0) {
-      newErrors.quantity = "กรุณาใส่จำนวนน้ำยาน้อยกว่า 9999 หรือมากกว่า 0";
+    if (!amount) {
+      errors.amount = "กรุณาใส่จำนวนน้ำยา";
+    } else if (amount > 9999 || amount <= 0) {
+      errors.amount = "กรุณาใส่จำนวนน้ำยาน้อยกว่า 9999 หรือมากกว่า 0";
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setError(newErrors);
-      setDialogType("error"); // Set dialog to error case
-      setIsDialogOpen(true); // Open the dialog
+    if (Object.keys(errors).length > 0) {
+      setError(errors);
+      setDialogType("error");
+      setIsDialogOpen(true);
       return;
     }
 
-    // const countlot
     setSuccess({
-      // lot:
       item: item,
-      quantity: quantity,
+      amount: amount,
       note: note,
+      import_date: new Date()
     })
     setError({});
     setDialogType("success"); // Set dialog to success case
@@ -106,8 +102,8 @@ export const StockForm = () => {
             </h3>
             <Input
               type="number"
-              name="quantity"
-              value={formData.quantity}
+              name="amount"
+              value={formData.amount}
               onChange={handleChange}
               className="border border-black bg-[#999] text-white placeholder:text-white"
               placeholder="ใส่จำนวน Item ไม่เกิน 9999 ชิ้น"
@@ -134,7 +130,6 @@ export const StockForm = () => {
         </div>
       </form>
 
-      {/* Popup Dialog */}
       <Popup
         dialogType={dialogType}
         isOpen={isOpen}
