@@ -1,21 +1,8 @@
 import mongoose from 'mongoose';
 
-const Item = mongoose.model(
-    'Item',
-    new mongoose.Schema(
-      {}, // Empty schema for dynamic fields
-      { 
-        strict: false, 
-        toJSON: {
-          transform: (doc, ret) => {
-            delete ret.__v; // Remove __v from the output
-            return ret;
-          }
-        }
-      }
-    ),
-    'item' // Collection name
-  );
+const Item = mongoose.model('Item',
+    new mongoose.Schema({}, { strict: false }),
+    'item');
 
 export const getAllItems = async (req, res) => {
     try {
