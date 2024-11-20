@@ -52,7 +52,7 @@ export const StockForm = () => {
 
     if (!amount) {
       errors.amount = "กรุณาใส่จำนวนน้ำยา";
-    } else if (amount > 9999 || amount <= 0) {
+    } else if (amount > 9999 || amount < 0) {
       errors.amount = "กรุณาใส่จำนวนน้ำยาน้อยกว่า 9999 หรือมากกว่า 0";
     }
 
@@ -74,6 +74,14 @@ export const StockForm = () => {
     setIsDialogOpen(true); // Open the dialog
   }
 
+  const resetForm = () => {
+    setFormData({
+      item: "",
+      amount: "",
+      note: "",
+    });
+  };
+
   return (
     <>
       <form onSubmit={handleSubmit} className="w-full space-y-9 mt-5">
@@ -82,7 +90,7 @@ export const StockForm = () => {
             <h3 className="text-2xl">
               รายการนำเข้าน้ำยา <span className="text-red-600">*</span>
             </h3>
-            <Select onValueChange={handleSelectChange}>
+            <Select value={formData.item} onValueChange={handleSelectChange}>
               <SelectTrigger className="border border-black bg-[#999] text-white placeholder:text-white">
                 <SelectValue placeholder="เลือกรายการนำเข้าน้ำยา" />
               </SelectTrigger>
@@ -106,7 +114,7 @@ export const StockForm = () => {
               value={formData.amount}
               onChange={handleChange}
               className="border border-black bg-[#999] text-white placeholder:text-white"
-              placeholder="ใส่จำนวน Item ไม่เกิน 9999 ชิ้น"
+              placeholder="ใส่จำนวนน้ำยา"
             />
           </div>
         </div>
@@ -136,6 +144,7 @@ export const StockForm = () => {
         setIsDialogOpen={setIsDialogOpen}
         errorData={error}
         successData={success}
+        resetForm={resetForm}
       />
     </>
   );

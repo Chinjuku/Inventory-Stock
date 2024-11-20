@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { getItembyId } from "@/api/items";
-import { getCountLot } from "@/api/stock";
+import { createStock, getCountLot } from "@/api/stock";
 import moment from "moment";
+import { toast } from "react-toastify";
 
 const Popup = ({
   dialogType,
@@ -20,6 +21,7 @@ const Popup = ({
   setIsDialogOpen,
   errorData,
   successData,
+  resetForm
 }) => {
   const [item, setItem] = useState()
   const [lot, setLot] = useState()
@@ -29,19 +31,38 @@ const Popup = ({
       const resItem = await getItembyId(successData.item)
       setItem(resItem)
       const resCountLot = await getCountLot(successData.item)
-      setLot(resCountLot + 1) //* เพิ่มล็อตจากจำนวนล็อตที่มีล่าสุด
+      setLot(resCountLot + 1)
     }
     fetchData();
-  }, [successData.item])
-  const expireDate = (import_date, expire_in = "", expire_in_type = "") => {
+  }, [isOpen, successData.item])
+  const expireDate = (import_date, type, expire_in = "", expire_in_type = "") => {
     if (!expire_in || !expire_in_type) {
-      return moment(successData.import_date).format('วันที่ DD/MM/YYYY เวลา HH:mm')
+      return type === "format"
+        ? moment(import_date).format('วันที่ DD/MM/YYYY เวลา HH:mm')
+        : moment(import_date).toISOString()
     }
-    return moment(import_date).add(Number(expire_in), expire_in_type).format('วันที่ DD/MM/YYYY เวลา HH:mm')
-  }
-  const saveToDB = () => {
-    //TODO : Save data to database
-    console.log("Save")
+    return type === "format"
+      ? moment(import_date).add(Number(expire_in), expire_in_type).format('วันที่ DD/MM/YYYY เวลา HH:mm')
+      : moment(import_date).add(Number(expire_in), expire_in_type).toISOString()
+  };
+  
+  const handleConfirm = async (item_code, lot, amount, note, import_datetime, expire_datetime) => {
+    const formData = {
+      item_code,
+      lot,
+      amount,
+      note,
+      import_datetime,
+      expire_datetime,
+    }
+    const res = await createStock(formData)
+    setIsDialogOpen(false);
+    resetForm();
+    if (res === 201) {
+      toast.success("จัดเก็บน้ำยาเข้าคลังสำเร็จ!")
+    } else {
+      toast.error("เกิดข้อผิดพลาดในการจัดเก็ยน้ำยาเข้าคลัง!")
+    }
   }
   return (
     <Dialog open={isOpen} onOpenChange={setIsDialogOpen}>
@@ -58,12 +79,19 @@ const Popup = ({
               <p>ชื่อน้ำยา: {item?.name || ""}</p>
               <p>จำนวน: {successData.amount} ชิ้น</p>
               <p>ล็อตที่นำเข้า: {lot || ""}</p>
-              <p>เวลาที่นำเข้า: {expireDate(successData.import_date)}</p>
-              <p>วันที่หมดอายุ: {expireDate(successData.import_date, item?.expire_in, item?.expire_in_type)}</p>
+              <p>เวลาที่นำเข้า: {expireDate(successData.import_date, "format")}</p>
+              <p>วันที่หมดอายุ: {expireDate(successData.import_date, "format", item?.expire_in, item?.expire_in_type)}</p>
             </DialogHeader>
             <DialogFooter>
               <Button className="bg-red-400" onClick={() => setIsDialogOpen(false)}>ยกเลิก</Button>
-              <Button className="bg-green-400" onClick={() => saveToDB()}>ตกลง</Button>
+              <Button className="bg-green-400" onClick={() => handleConfirm(
+                item?._id,
+                String(lot),
+                successData.amount,
+                successData.note,
+                expireDate(successData.import_date, "iso"),
+                expireDate(successData.import_date, "iso", item?.expire_in, item?.expire_in_type)
+              )}>ตกลง</Button>
             </DialogFooter>
           </>
         ) : (
@@ -98,6 +126,7 @@ Popup.propTypes = {
   setIsDialogOpen: PropTypes.func.isRequired,
   errorData: PropTypes.objectOf(PropTypes.string),
   successData: PropTypes.objectOf(),
+  resetForm: PropTypes.func.isRequired,
 };
 
 export default Popup;

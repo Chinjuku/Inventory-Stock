@@ -9,3 +9,13 @@ export const getCountLot = async (item_id) => {
         throw new Error('Failed to get item by id');
     }
 }
+
+export const createStock = async (formData) => {
+    try {
+        const createStock = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/stock/create`, formData)
+        console.log(createStock.status)
+        return createStock.status;
+    } catch (err) {
+        return err;
+    }
+}
