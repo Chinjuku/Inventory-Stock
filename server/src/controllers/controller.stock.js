@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import moment from 'moment-timezone';
 
 const Stock = mongoose.model('Stock',
-    new mongoose.Schema({}, { strict: false  }),
+    new mongoose.Schema({}, { strict: false  }, { versionKey: false }),
     'stock');
 
 export const checkLot = async (req, res) => {
@@ -11,9 +11,6 @@ export const checkLot = async (req, res) => {
         const countstock = await Stock.countDocuments({
             item_code: new mongoose.Types.ObjectId(item_id)
         })
-        if (!countstock) {
-            return res.send({ count_lot: countstock })
-        }
         res.send({ count_lot: countstock });
     } catch (error) {
         console.error(error)
@@ -22,7 +19,7 @@ export const checkLot = async (req, res) => {
 }
 
 const thaiTime = (datetime) => {
-    return new Date(moment.utc(datetime).tz('Asia/Bangkok'));
+    return new Date(moment.utc(datetime).tz('Asia/Bangkok')); // * Edit time
 }
 
 export const createStock = async (req, res) => {
@@ -35,8 +32,8 @@ export const createStock = async (req, res) => {
             lot,
             amount,
             note,
-            import_thdatetime,
-            expire_thdatetime,
+            import_datetime: import_thdatetime,
+            exp_datetime: expire_thdatetime,
         });
 
         const result = newStock.toObject();

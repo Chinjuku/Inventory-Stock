@@ -6,7 +6,7 @@ const Item = mongoose.model('Item',
 
 export const getAllItems = async (req, res) => {
     try {
-        const items = await Item.find()
+        const items = await Item.find().lean() // **
         res.send(items);
     } catch (error) {
         res.status(500).send({ error: 'Error fetching items' });

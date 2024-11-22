@@ -28,7 +28,7 @@ const Popup = ({
   useEffect(() => {
     const fetchData = async () => {
       if (!successData.item) return;
-      const resItem = await getItembyId(successData.item)
+      const resItem = await getItembyId(successData.item) // ใช้ data จาก getall แทน
       setItem(resItem)
       const resCountLot = await getCountLot(successData.item)
       setLot(resCountLot + 1)
