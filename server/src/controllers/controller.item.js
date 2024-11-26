@@ -1,11 +1,12 @@
 import mongoose from 'mongoose';
+import Item from '../models/model.item.js';
 
-const Item = mongoose.model('Item',
-    new mongoose.Schema({}, { strict: false }),
-    'item');
+const { ObjectId } = mongoose.Types
 
 export const getAllItems = async (req, res) => {
     try {
+        // -> Your own query -> 
+        // const items = await Item.where("name").equals("น้ำยา CBC").select("name")
         const items = await Item.find().lean() // **
         res.send(items);
     } catch (error) {
@@ -16,7 +17,7 @@ export const getAllItems = async (req, res) => {
 export const getItemById = async (req, res) => {
     const { item_id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(item_id)) {
+    if (!ObjectId.isValid(item_id)) {
         return res.status(400).send({ error: 'Invalid item ID format' });
     }
 

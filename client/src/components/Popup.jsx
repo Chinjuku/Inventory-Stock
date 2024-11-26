@@ -9,41 +9,44 @@ import {
 import clsx from "clsx";
 import { Button } from "@/components/ui/button";
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { getItembyId } from "@/api/items";
 import { createStock, getCountLot } from "@/api/stock";
 import moment from "moment";
 import { toast } from "react-toastify";
+import { StockContext } from "@/context/StockContextProvider";
 
 const Popup = ({
   dialogType,
   isOpen,
   setIsDialogOpen,
   errorData,
-  successData,
   resetForm
 }) => {
+  const { stock } = useContext(StockContext)
+  console.log(stock)
   const [item, setItem] = useState()
   const [lot, setLot] = useState()
   useEffect(() => {
     const fetchData = async () => {
-      if (!successData.item) return;
-      const resItem = await getItembyId(successData.item) // ใช้ data จาก getall แทน
+      if (!stock) return;
+      const resItem = await getItembyId(stock.item) // ใช้ data จาก getall แทน
       setItem(resItem)
-      const resCountLot = await getCountLot(successData.item)
+      const resCountLot = await getCountLot(stock.item)
       setLot(resCountLot + 1)
     }
     fetchData();
-  }, [isOpen, successData.item])
+  }, [isOpen, stock])
+  console.log(stock?.item)
   const expireDate = (import_date, type, expire_in = "", expire_in_type = "") => {
     if (!expire_in || !expire_in_type) {
       return type === "format"
         ? moment(import_date).format('วันที่ DD/MM/YYYY เวลา HH:mm')
-        : moment(import_date).toISOString()
+        : import_date
     }
     return type === "format"
       ? moment(import_date).add(Number(expire_in), expire_in_type).format('วันที่ DD/MM/YYYY เวลา HH:mm')
-      : moment(import_date).add(Number(expire_in), expire_in_type).toISOString()
+      : moment(import_date).add(Number(expire_in), expire_in_type)
   };
   
   const handleConfirm = async (item_code, lot, amount, note, import_datetime, expire_datetime) => {
@@ -77,20 +80,20 @@ const Popup = ({
             <DialogHeader>
               <DialogTitle className="text-lg my-2">ยืนยันการนำเข้าข้อมูล</DialogTitle>
               <p>ชื่อน้ำยา: {item?.name || ""}</p>
-              <p>จำนวน: {successData.amount} ชิ้น</p>
+              <p>จำนวน: {stock.amount} ชิ้น</p>
               <p>ล็อตที่นำเข้า: {lot || ""}</p>
-              <p>เวลาที่นำเข้า: {expireDate(successData.import_date, "format")}</p>
-              <p>วันที่หมดอายุ: {expireDate(successData.import_date, "format", item?.expire_in, item?.expire_in_type)}</p>
+              <p>เวลาที่นำเข้า: {expireDate(stock.import_date, "format")}</p>
+              <p>วันที่หมดอายุ: {expireDate(stock.import_date, "format", item?.expire_in, item?.expire_in_type)}</p>
             </DialogHeader>
             <DialogFooter>
               <Button className="bg-red-400" onClick={() => setIsDialogOpen(false)}>ยกเลิก</Button>
               <Button className="bg-green-400" onClick={() => handleConfirm(
                 item?._id,
-                String(lot),
-                successData.amount,
-                successData.note,
-                expireDate(successData.import_date, "iso"),
-                expireDate(successData.import_date, "iso", item?.expire_in, item?.expire_in_type)
+                lot,
+                stock.amount,
+                stock.note,
+                expireDate(stock.import_date, "iso"),
+                expireDate(stock.import_date, "iso", item?.expire_in, item?.expire_in_type)
               )}>ตกลง</Button>
             </DialogFooter>
           </>

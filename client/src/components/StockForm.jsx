@@ -9,10 +9,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import Popup from "@/components/Popup";
+import { StockContext } from "@/context/StockContextProvider";
 
 export const StockForm = () => {
+  const { setStock } = useContext(StockContext);
   const [items, setItems] = useState([]);
   const [formData, setFormData] = useState({
     item: "",
@@ -22,7 +24,6 @@ export const StockForm = () => {
   const [error, setError] = useState({});
   const [isOpen, setIsDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState("");
-  const [success, setSuccess] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,7 +64,7 @@ export const StockForm = () => {
       return;
     }
 
-    setSuccess({
+    setStock({
       item: item,
       amount: amount,
       note: note,
@@ -143,7 +144,6 @@ export const StockForm = () => {
         isOpen={isOpen}
         setIsDialogOpen={setIsDialogOpen}
         errorData={error}
-        successData={success}
         resetForm={resetForm}
       />
     </>
