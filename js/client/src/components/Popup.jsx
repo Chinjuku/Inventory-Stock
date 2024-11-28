@@ -24,7 +24,7 @@ const Popup = ({
   resetForm
 }) => {
   const { stock } = useContext(StockContext)
-  console.log(stock)
+  // console.log(stock)
   const [item, setItem] = useState()
   const [lot, setLot] = useState()
   useEffect(() => {
