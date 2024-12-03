@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import Item from '../models/model.item';
+import Item, { ItemType } from '../models/model.item';
 import { Request, Response } from "express";
 
 export const getAllItems = async (req: Request, res: Response) => {
@@ -12,6 +12,43 @@ export const getAllItems = async (req: Request, res: Response) => {
         res.status(500).send({ error: 'Error fetching items' });
     }
 }
+
+export const getPaginateItems = async (req: Request, res: Response) => {
+    try {
+      let { page, limit } = req.query;
+      const { search, type } = req.query;
+      const pageNumber = parseInt(String(page || "1"));
+      const limitNumber = parseInt(String(limit || "10"));
+      const skipPage = (pageNumber - 1) * limitNumber
+      const searchRegex = '.*' + search + '.*'
+      let query: {} = {};
+      if (type === "all") {
+        query = {
+          $or: [
+            { name: { $regex: searchRegex } },
+            { expire_in_type: { $regex: searchRegex } },
+            { expire_in: Number(search) },
+          ].filter(Boolean),
+        };
+      } else if (type === "name") {
+        query = { name: { $regex: searchRegex } };
+      }
+      const items = await Item.find(query)
+        .skip(skipPage)
+        .limit(limitNumber);
+      const totalItems = await Item.countDocuments();
+      console.log(items, items.length, pageNumber)
+      res.json({
+        data: items,
+        total: totalItems,
+        page: pageNumber,
+        limit: limitNumber,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+};
 
 
 // export const getItemById = async (req: Request, res: Response) => {

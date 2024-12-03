@@ -47,7 +47,7 @@ StockSchema.methods.created = function () {
     return `น้ำยาสต็อก ${this.item_code} ถูกสร้างขึ้นแล้ว!`
 }
 
-type StockType = InferSchemaType<typeof StockSchema>
+export type StockType = InferSchemaType<typeof StockSchema>
 
 const Stock = mongoose.model<StockType>('Stock', StockSchema, 'stock')
 export default Stock;

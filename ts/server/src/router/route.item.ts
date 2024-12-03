@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { getAllItems } from "../controllers/controller.item";
+import { getAllItems, getPaginateItems } from "../controllers/controller.item";
 
 const router = Router();
 
 router.get('/', getAllItems)
+
+router.get('/paginate', getPaginateItems)
 
 // router.get('/:item_id', getItemById);
 

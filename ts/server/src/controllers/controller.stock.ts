@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import Stock from "../models/model.stock";
 import { Request, Response } from "express";
 
-
 const { ObjectId } = mongoose.Types
 
 export const checkLot = async (req: Request, res: Response) => {
@@ -20,7 +19,7 @@ export const checkLot = async (req: Request, res: Response) => {
 
 const thaiTime = (datetime: Date) => {
     const date = new Date(datetime)
-    date.setHours(date.getHours() + 7)
+    // date.setHours(date.getHours() + 7)
     return date
 };
   
