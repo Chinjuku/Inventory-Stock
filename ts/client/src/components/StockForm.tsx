@@ -117,18 +117,6 @@ export const StockForm = () => {
                 />
               )}
             />
-            {/* <Select value={formData.item} onValueChange={handleSelectChange}>
-              <SelectTrigger className="border border-black bg-[#999] text-white placeholder:text-white">
-                <SelectValue placeholder="เลือกรายการนำเข้าน้ำยา" />
-              </SelectTrigger>
-              <SelectContent>
-                {items.map((item) => (
-                  <SelectItem key={item._id} value={item._id}>
-                    {item.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
           </div>
 
           <div className="flex flex-col text-[#999] gap-2 w-1/2">

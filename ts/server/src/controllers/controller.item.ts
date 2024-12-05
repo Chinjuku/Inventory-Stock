@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import Item, { ItemType } from '../models/model.item';
 import { Request, Response } from "express";
 
+const { ObjectId } = mongoose.Types
+
 export const getAllItems = async (req: Request, res: Response) => {
     try {
         // -> Your own query -> 
@@ -25,10 +27,11 @@ export const getPaginateItems = async (req: Request, res: Response) => {
       if (type === "all") {
         query = {
           $or: [
+            { _id: ObjectId.isValid(String(search)) ? new ObjectId(String(search)) : undefined },
             { name: { $regex: searchRegex } },
             { expire_in_type: { $regex: searchRegex } },
             { expire_in: Number(search) },
-          ].filter(Boolean),
+          ]
         };
       } else if (type === "name") {
         query = { name: { $regex: searchRegex } };
@@ -38,6 +41,7 @@ export const getPaginateItems = async (req: Request, res: Response) => {
         .limit(limitNumber);
       const totalItems = await Item.countDocuments();
       console.log(items, items.length, pageNumber)
+      console.log(search)
       res.json({
         data: items,
         total: totalItems,
