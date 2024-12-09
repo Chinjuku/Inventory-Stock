@@ -1,10 +1,10 @@
 import { DataGrid, GridPaginationModel } from "@mui/x-data-grid";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Item } from "../types/data.types";
 import { Input } from "./ui/input";
 import { debounce } from "@mui/material";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { getQueryItems } from "../api/items";
 
 const columns = [
   {
@@ -66,14 +66,12 @@ export default function ItemDashboard() {
     const fetchData = async () => {
       try {
         setPageState((prev) => ({ ...prev, isLoading: true }));
-        const res = await axios.get(
-          `http://localhost:3000/api/item/paginate?page=${pageState.page}&limit=${pageState.pageSize}&search=${pageState.searchData}&type=${pageState.type}`
-        );
+        const res = await getQueryItems(pageState.page, pageState.pageSize, pageState.searchData, pageState.type)
         setPageState((prev) => ({
           ...prev,
           isLoading: false,
-          data: res.data.data,
-          total: res.data.total,
+          data: res.data,
+          total: res.total,
         }));
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -86,7 +84,7 @@ export default function ItemDashboard() {
 
   return (
     <div className="h-[700px] w-full flex flex-col gap-5">
-      <h1 className="text-3xl">Item Dashboard</h1>
+      <h1 className="text-3xl font-semibold">Item Dashboard</h1>
       <div className="flex gap-4 items-center justify-center">
         <Select value={pageState.type} onValueChange={handleSelectChange}>
               <SelectTrigger className="border w-1/4 placeholder:text-white">

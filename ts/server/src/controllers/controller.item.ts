@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Item, { ItemType } from '../models/model.item';
 import { Request, Response } from "express";
+import { StockType } from '../models/model.stock';
 
 const { ObjectId } = mongoose.Types
 
@@ -8,7 +9,7 @@ export const getAllItems = async (req: Request, res: Response) => {
     try {
         // -> Your own query -> 
         // const items = await Item.where("name").equals("น้ำยา CBC").select("name")
-        const items = await Item.find().lean() // **
+        const items = await Item.find().lean<ItemType[]>() // ** เพิ่ม lean make more performance
         res.send(items);
     } catch (error) {
         res.status(500).send({ error: 'Error fetching items' });
@@ -38,7 +39,8 @@ export const getPaginateItems = async (req: Request, res: Response) => {
       }
       const items = await Item.find(query)
         .skip(skipPage)
-        .limit(limitNumber);
+        .limit(limitNumber)
+        .lean<ItemType[]>();
       const totalItems = await Item.countDocuments();
       console.log(items, items.length, pageNumber)
       console.log(search)
